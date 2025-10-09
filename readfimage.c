@@ -16,7 +16,7 @@ if(load_fits(&img)) fprintf(stderr,"error in loading fits file\n");
 fprintf(stderr,"main() fits image loaded\n");
 /* print the array*/
 img.status=0;
-if(print_array(&img)) fprintf(stderr,"error in filling the array\n");
+if(print_array(&img)) fprintf(stderr,"error in printing the array\n");
 fprintf(stderr,"main() read array printed\n");
   return 0;
 }

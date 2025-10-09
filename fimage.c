@@ -27,10 +27,13 @@ long int i,j;
 }
 int free_array(struct image *img){
   long int i;
-  free(img->arr);
-  free(img->arr16);
-  free(img->arr8);
-  fprintf(stderr,"free_array() freed the arrays\n");
+  if(img->bitpix==32)
+    free(img->arr);
+  if(img->bitpix==16)
+    free(img->arr16);
+  if(img->bitpix==8)
+    free(img->arr8);
+  fprintf(stderr,"free_array() freed the %d bit array\n",img->bitpix);
   return img->status;
 }
 int save_fits(struct image *img){
@@ -42,13 +45,13 @@ int save_fits(struct image *img){
   fprintf(stderr,"save_fits() fits file opened\n");
   /* create the image */
   if ( fits_create_img(img->ofp, img->bitpix, img->naxis, img->naxes, &img->status) )
-         printerror( img->status );          
+         printerror( img->status );
   fprintf(stderr,"save_fits() image created\n");
   /* initialize the array*/
 	img->status=0;
-    if(allocate_array(img->bitpix,img)) fprintf(stderr,"error in allocating array memory\n"); 
+/*  if(allocate_array(img->bitpix,img)) fprintf(stderr,"error in allocating array memory\n"); 
   fprintf(stderr,"save_fits() array allocated\n");
-
+*/
   /* write the image */
   fprintf(stderr,"save_fits() fits file opened\n");
   if(img->bitpix==32){
