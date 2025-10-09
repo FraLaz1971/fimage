@@ -141,15 +141,20 @@ return img->status;
 
 int set_chdu(int hdunum,struct image *img){
   img->chdu=hdunum;
-if ( fits_movabs_hdu(img->ifp, img->btable.hdunum, &img->btable.hdutype, &img->status) )
-  printerror(img->status);
+  fprintf(stderr,"set_chdu() current hdu set to %d\n",img->chdu);
 if (fits_open_file(&img->ofp, img->fname, READWRITE, &img->status) )
    printerror(img->status);
+  fprintf(stderr,"set_chdu() opened fits file %s\n",img->fname);
+if ( fits_movabs_hdu(img->ofp, img->chdu, &img->btable.hdutype, &img->status) )
+  printerror(img->status);
+  fprintf(stderr,"set_chdu() moved to hdu %d tyoe %d\n",img->chdu,img->btable.hdutype);
   return img->status;
 }
 int add_table(struct image *img){
     img->btable.tfields = 3;/* table will have 3 columns */
     img->btable.nrows = 6;/* table will have 6 rows    */
+    img->btable.firstrow = 1;/* first row in table to write */
+    img->btable.firstelem = 1;/* first elwment in row*/
     strcpy(img->btable.extname,"PLANETS_Binary");           /* extension name */
 
     /* define the name, datatype, and physical units for the 3 columns */
@@ -162,6 +167,7 @@ int add_table(struct image *img){
     img->btable.tunit[0] = "\0";
     img->btable.tunit[1] = "km";
     img->btable.tunit[2] = "g/cm^3";
+  fprintf(stderr,"add_table() defined columns metadata\n");
 
     /* define the name, diameter, and density of each planet */
     img->btable.planet[0] = "Mercury";
@@ -182,20 +188,26 @@ int add_table(struct image *img){
     img->btable.density[3]  = 3.94f;
     img->btable.density[4]  = 1.33f;
     img->btable.density[5]  = 0.69f;
-if ( fits_create_tbl( img->ofp, BINARY_TBL, 
-img->btable.nrows, img->btable.tfields, 
+  fprintf(stderr,"add_table() defined columns content\n");
+if ( fits_create_tbl( img->ofp, BINARY_TBL,
+img->btable.nrows, img->btable.tfields,
 img->btable.ttype, img->btable.tform,
 img->btable.tunit, img->btable.extname, &img->status) )
          printerror( img->status );
+  fprintf(stderr,"add_table() created table\n");
 
     if(fits_write_col(img->ofp, TSTRING, 1, img->btable.firstrow, img->btable.firstelem, img->btable.nrows, img->btable.planet,
                    &img->status)) printerror(img->status);
+    fprintf(stderr,"add_table() written column 1\n");
     if(fits_write_col(img->ofp, TLONG, 2, img->btable.firstrow, img->btable.firstelem, img->btable.nrows, img->btable.diameter,
                    &img->status)) printerror(img->status);
+    fprintf(stderr,"add_table() written column 2\n");
     if(fits_write_col(img->ofp, TFLOAT, 3, img->btable.firstrow, img->btable.firstelem, img->btable.nrows, img->btable.density,
                    &img->status)) printerror(img->status);
+    fprintf(stderr,"add_table() written column 3\n");
     if ( fits_close_file(img->ofp, &img->status) )
          printerror( img->status );
+    fprintf(stderr,"add_table() closed fits file\n");
   return img->status;
 }
 
