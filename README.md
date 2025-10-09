@@ -10,8 +10,7 @@ pointed by CFITSIO_HOME env variable, otherwise change the makefile.
 ###
 to run on linux
 ###
+`./writefimage 3 5 img3x5_001.fits`
 ###
-`./readfimage`
-###
-`./writefimage`
+`./readfimage img3x5_001.fits`
 ###
