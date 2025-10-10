@@ -7,7 +7,7 @@ LIBS=-lcfitsio -lm
 OEXT=.o
 EEXT=
 RM=rm -f
-all: writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT)
+all: writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT) readftable$(EEXT)
 
 fimage(OEXT): fimage.c fimage.h
 	$(CC) -c $(CFLAGS) $<
@@ -19,7 +19,13 @@ writefimage(OEXT): writefimage.c fimage.h
 	$(CC) -c $(CFLAGS) $<
 
 writeftable(OEXT): writeftable.c fimage.h
-        $(CC)  $(CFLAGS) -c $<
+	$(CC)  $(CFLAGS) -c $<
+
+addfbtable(OEXT): addfbtable.c fimage.h
+	$(CC)  $(CFLAGS) -c $<
+
+readftable(OEXT): readftable.c fimage.h
+	$(CC)  $(CFLAGS) -c $<
 
 readfimage$(EEXT): readfimage$(OEXT) fimage$(OEXT)
 	$(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
@@ -28,7 +34,13 @@ writefimage$(EEXT): writefimage$(OEXT) fimage$(OEXT)
 	$(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
 
 writeftable$(EEXT): writeftable$(OEXT) fimage$(OEXT)
-        $(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
+	$(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
+
+addfbtable$(EEXT): addfbtable$(OEXT) fimage$(OEXT)
+	$(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
+
+readftable$(EEXT): readftable$(OEXT) fimage$(OEXT)
+	$(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
 clean:
-	$(RM) *.o writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT)
+	$(RM) *.o writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT) readftable$(EEXT)
 

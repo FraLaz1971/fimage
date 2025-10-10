@@ -10,7 +10,7 @@ int main(int argc, char **argv){
   strcpy(img.ifname,argv[1]);
   fprintf(stderr,"argv[1]: %s ifname: %s\n", argv[1],img.ifname);
   img.fpixel=1;
-/* read fits file content in the array */
+/* read fits image in the structure */
 img.status=0;
 if(load_fits(&img)) fprintf(stderr,"error in loading fits file\n");
 fprintf(stderr,"main() fits image loaded\n");
