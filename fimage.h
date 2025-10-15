@@ -59,6 +59,7 @@ int fill_array(struct image *img);
 int print_array(struct image *img);
 int free_array(struct image *img);
 int save_fits(struct image *img); /* save image array on a fits file */
+int save_bin(struct image *img); /* save image array on a binary file */
 int init_table(struct image *img); /* init the fits file to then adda a table */
 int load_fits(struct image *img);
 int load_table_header(int hdunum,struct image *img);
