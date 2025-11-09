@@ -1,4 +1,5 @@
 #include "fimage.h"
+static int debug=0;
 /* allocate and fill a 2D array and save it on a FITS file */
 int main(int argc, char **argv){
   struct image img;
@@ -25,8 +26,8 @@ img.status=0;
 if(fill_array(&img)) fprintf(stderr,"error in filling the array\n");
 fprintf(stderr,"main() array filled\n");
 /* print the array*/
-if(print_array(&img)) fprintf(stderr,"error in filling the array\n");
-fprintf(stderr,"main() array printed\n");
+if (debug) {if(print_array(&img)) fprintf(stderr,"error in filling the array\n");
+fprintf(stderr,"main() array printed\n"); }
 /* save image on fits file */
 if(save_fits(&img))fprintf(stderr,"error in saving fits file\n");
 fprintf(stderr,"main() image saved on file\n");

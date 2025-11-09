@@ -1,0 +1,52 @@
+CC=cl
+LD=link
+CFITSIO_HOME=C:\cfitsio\cfitsiovc
+CFLAGS=/I$(CFITSIO_HOME)
+LDFLAGS=/LIBPATH:$(CFITSIO_HOME)
+LIBS=cfitsio.lib
+OEXT=.obj
+EEXT=.exe
+RM=del /Q /F
+all: writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT) readftable$(EEXT) fimage2bin$(EEXT)
+
+fimage(OEXT): fimage.c
+	$(CC) /c $(CFLAGS) $?
+
+readfimage(OEXT): readfimage.c
+	$(CC) /c $(CFLAGS) $?
+
+writefimage(OEXT): writefimage.c
+	$(CC) /c $(CFLAGS) $?
+
+writeftable(OEXT): writeftable.c
+	$(CC)  $(CFLAGS) /c $?
+
+addfbtable(OEXT): addfbtable.c
+	$(CC)  $(CFLAGS) /c $?
+
+readftable(OEXT): readftable.c
+	$(CC)  $(CFLAGS) /c $?
+
+fimage2bin(OEXT): fimage2bin.c
+	$(CC)  $(CFLAGS) /c $?
+
+readfimage$(EEXT): readfimage$(OEXT) fimage$(OEXT)
+	$(LD)  $** /out:$@ $(LDFLAGS) $(LIBS)
+
+writefimage$(EEXT): writefimage$(OEXT) fimage$(OEXT)
+	$(LD)  $** /out:$@ $(LDFLAGS) $(LIBS)
+
+fimage2bin$(EEXT): fimage2bin$(OEXT) fimage$(OEXT)
+	$(LD)  $** /out:$@ $(LDFLAGS) $(LIBS)
+
+writeftable$(EEXT): writeftable$(OEXT) fimage$(OEXT)
+	$(LD)  $** /out:$@ $(LDFLAGS) $(LIBS)
+
+addfbtable$(EEXT): addfbtable$(OEXT) fimage$(OEXT)
+	$(LD)  $** /out:$@ $(LDFLAGS) $(LIBS)
+
+readftable$(EEXT): readftable$(OEXT) fimage$(OEXT)
+	$(LD)  $** /out:$@ $(LDFLAGS) $(LIBS)
+clean:
+	$(RM) *.obj writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT) readftable$(EEXT) fimage2bin$(EEXT)
+

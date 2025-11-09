@@ -1,4 +1,5 @@
 #include "fimage.h"
+int debug=0;
 int allocate_array(int nbits,struct image *img){
   long int i;
   if(nbits==32)
@@ -33,109 +34,110 @@ int free_array(struct image *img){
     free(img->arr16);
   if(img->bitpix==8)
     free(img->arr8);
-  fprintf(stderr,"free_array() freed the %d bit array\n",img->bitpix);
+  if (debug) if (debug) fprintf(stderr,"free_array() freed the %d bit array\n",img->bitpix);
   return img->status;
 }
 int save_bin(struct image *img){
   /* remove the file if exists */
-  fprintf(stderr,"save_bin() going to remove the file if yet existent\n");
+  if (debug) fprintf(stderr,"save_bin() going to remove the file if yet existent\n");
   remove(img->fname);
-  fprintf(stderr,"save_bin() file %s removed\n",img->fname);
+  if (debug) fprintf(stderr,"save_bin() file %s removed\n",img->fname);
   /* open fits file for writing */
 //  if (fits_create_file(&img->ofp, img->fname, &img->status)) /* create new FITS file */
 //         printerror( img->status );           /* call printerror if error occurs */
-  img->ofp=fopen(img->fname,"wb");
-//  fprintf(stderr,"save_bin() raw file created\n");
+  img->ofp=(fitsfile *)fopen(img->fname,"wb");
+//  if (debug) fprintf(stderr,"save_bin() raw file created\n");
   /* create the image */
 //  if ( fits_create_img(img->ofp, img->bitpix, img->naxis, img->naxes, &img->status) )
 //         printerror( img->status );
-//  fprintf(stderr,"save_bin() image created\n");
+//  if (debug) fprintf(stderr,"save_bin() image created\n");
   /* initialize the array*/
 	img->status=0;
-/*  if(allocate_array(img->bitpix,img)) fprintf(stderr,"error in allocating array memory\n"); 
-  fprintf(stderr,"save_fits() array allocated\n");
+/*  if(allocate_array(img->bitpix,img)) if (debug) fprintf(stderr,"error in allocating array memory\n");
+  if (debug) fprintf(stderr,"save_fits() array allocated\n");
 */
   /* write the image */
-  fprintf(stderr,"save_bin() raw file %s opened\n",img->fname);
-  fprintf(stderr,"save_bin() size of the array %ld\n",img->nelements);
+  if (debug) fprintf(stderr,"save_bin() raw file %s opened\n",img->fname);
+  if (debug) fprintf(stderr,"save_bin() size of the array %ld\n",img->nelements);
   if(img->bitpix==32){
-        fprintf(stderr,"save_bin() going to write a 32 bits int image \n");
-        fwrite(img->arr,img->nelements*4,1,img->ofp);
+        if (debug) fprintf(stderr,"save_bin() going to write a 32 bits int image \n");
+        fwrite(img->arr,img->nelements*4,1,(FILE*)img->ofp);
 //  if ( fits_write_img(img->ofp, TINT, img->fpixel, img->nelements, img->arr, &img->status) )
 //        printerror( img->status );
   } else if (img->bitpix==16) {
-  fprintf(stderr,"save_bin() going to write a 16 bits int image \n");
-        fwrite(img->arr16,img->nelements*2,1,img->ofp);
+  if (debug) fprintf(stderr,"save_bin() going to write a 16 bits int image \n");
+        fwrite(img->arr16,img->nelements*2,1,(FILE*)img->ofp);
 //  if ( fits_write_img(img->ofp, TSHORT, img->fpixel, img->nelements, img->arr16, &img->status) )
 //        printerror( img->status );
   } else if (img->bitpix==8){
-  fprintf(stderr,"save_bin() going to write a 8 bits int image \n");
+  if (debug) fprintf(stderr,"save_bin() going to write a 8 bits int image \n");
 //  if ( fits_write_img(img->ofp, TBYTE, img->fpixel, img->nelements, img->arr8, &img->status) )
 //        printerror( img->status );
-        fwrite(img->arr8,img->nelements,1,img->ofp);
+        fwrite(img->arr8,img->nelements,1,(FILE*)img->ofp);
   } else if (img->bitpix==-32){
-  fprintf(stderr,"save_bin() going to write a 32 bits float image \n");
+  if (debug) fprintf(stderr,"save_bin() going to write a 32 bits float image \n");
 //  if ( fits_write_img(img->ofp, TFLOAT, img->fpixel, img->nelements, img->arr8, &img->status) )
 //        printerror( img->status );
-        fwrite(img->arr,img->nelements,1,img->ofp);
+        fwrite(img->arr,img->nelements,1,(FILE*)img->ofp);
   }
-  fprintf(stderr,"save_bin() raw file written\n");
+  if (debug) fprintf(stderr,"save_bin() raw file written\n");
   /* close fits file */
   //if ( fits_close_file(img->ofp, &img->status) ) /* close the file */
          //printerror( img->status );           
-         fclose(img->ofp);
-  fprintf(stderr,"save_bin() raw file closed\n");
+         fclose((FILE*)(FILE*)img->ofp);
+  if (debug) fprintf(stderr,"save_bin() raw file closed\n");
   return img->status;
 }
 
 int save_fits(struct image *img){
+  debug=1;
   /* remove the file if exists */
-  fprintf(stderr,"save_fits() going to remove the file if yet existent\n");
+  if (debug) fprintf(stderr,"save_fits() going to remove the file if yet existent\n");
   remove(img->fname);
-  fprintf(stderr,"save_fits() file %s removed\n",img->fname);
+  if (debug) fprintf(stderr,"save_fits() file %s removed\n",img->fname);
   /* open fits file for writing */
   if (fits_create_file(&img->ofp, img->fname, &img->status)) /* create new FITS file */
          printerror( img->status );           /* call printerror if error occurs */
-  fprintf(stderr,"save_fits() fits file created\n");
+  if (debug) fprintf(stderr,"save_fits() fits file created\n");
   /* create the image */
   if ( fits_create_img(img->ofp, img->bitpix, img->naxis, img->naxes, &img->status) )
          printerror( img->status );
-  fprintf(stderr,"save_fits() image created\n");
+  if (debug) fprintf(stderr,"save_fits() image created\n");
   /* initialize the array*/
 	img->status=0;
-/*  if(allocate_array(img->bitpix,img)) fprintf(stderr,"error in allocating array memory\n"); 
-  fprintf(stderr,"save_fits() array allocated\n");
+/*  if(allocate_array(img->bitpix,img)) if (debug) fprintf(stderr,"error in allocating array memory\n");
+  if (debug) fprintf(stderr,"save_fits() array allocated\n");
 */
   /* write the image */
-  fprintf(stderr,"save_fits() fits file opened\n");
+  if (debug) fprintf(stderr,"save_fits() fits file opened\n");
   if(img->bitpix==32){
-        fprintf(stderr,"save_fits() going to write a 32 bits image \n");
+        if (debug) fprintf(stderr,"save_fits() going to write a 32 bits image \n");
   if ( fits_write_img(img->ofp, TINT, img->fpixel, img->nelements, img->arr, &img->status) )
         printerror( img->status );
   } else if (img->bitpix==16) {
-  fprintf(stderr,"save_fits() going to write a 16 bits image \n");
+  if (debug) fprintf(stderr,"save_fits() going to write a 16 bits image \n");
   if ( fits_write_img(img->ofp, TSHORT, img->fpixel, img->nelements, img->arr16, &img->status) )
         printerror( img->status );
   } else if (img->bitpix==8){
-  fprintf(stderr,"save_fits() going to write a 8 bits image \n");
+  if (debug) fprintf(stderr,"save_fits() going to write a 8 bits image \n");
   if ( fits_write_img(img->ofp, TBYTE, img->fpixel, img->nelements, img->arr8, &img->status) )
         printerror( img->status );
   }
-  fprintf(stderr,"save_fits() fits file written\n");
+  if (debug) fprintf(stderr,"save_fits() fits file written\n");
   /* close fits file */
   if ( fits_close_file(img->ofp, &img->status) ) /* close the file */
          printerror( img->status );           
-  fprintf(stderr,"save_fits() fits file closed\n");
+  if (debug) fprintf(stderr,"save_fits() fits file closed\n");
   return img->status;
 }
 int init_table(struct image *img){
-  fprintf(stderr,"init_table() going to remove the file if yet existent\n");
+  if (debug) fprintf(stderr,"init_table() going to remove the file if yet existent\n");
   remove(img->fname);
-  fprintf(stderr,"init_table() file %s removed\n",img->fname);
+  if (debug) fprintf(stderr,"init_table() file %s removed\n",img->fname);
   /* open fits file for writing */
   if (fits_create_file(&img->ofp, img->fname, &img->status)) /* create new FITS file */
          printerror( img->status );           /* call printerror if error occurs */
-  fprintf(stderr,"init_table() fits file created\n");
+  if (debug) fprintf(stderr,"init_table() fits file created\n");
   return img->status;
 }
 void set_element(long rownum,long colnum,int val,struct image *img){
@@ -155,6 +157,7 @@ int get_element(long rownum,long colnum,struct image *img){
     } else if(img->bitpix==8){
 		return img->arr8[rownum*img->ncols+colnum];
 	} else
+  debug=0;
 	  return 0;
 }
 
@@ -162,28 +165,28 @@ int load_table_header(int hdunum,struct image *img){
   img->chdu=hdunum;
   /* open fits file for reading */
   img->status=0;
-  fprintf(stderr,"load_table_header() going to open file %s\n",img->ifname);
+  if (debug) fprintf(stderr,"load_table_header() going to open file %s\n",img->ifname);
   if ( fits_open_file(&img->ifp, img->ifname, READONLY, &img->status) )
      printerror( img->status );
-  fprintf(stderr,"load_table_header() input fits file opened\n");
+  if (debug) fprintf(stderr,"load_table_header() input fits file opened\n");
 if ( fits_movabs_hdu(img->ifp, img->chdu, &img->btable.hdutype, &img->status) )
   printerror(img->status);
-  fprintf(stderr,"load_table_header() moved to hdu %d type %d\n",img->chdu,img->btable.hdutype);
+  if (debug) fprintf(stderr,"load_table_header() moved to hdu %d type %d\n",img->chdu,img->btable.hdutype);
 
   /* load image in memory */
   if(fits_read_key(img->ifp, TLONG, (char*)"NAXIS", &img->naxis,
        (char*)img->cmt, &img->status)) printerror(img->status);
-  fprintf(stderr,"load_table_header() naxis:%ld comment:%s\n",img->naxis,img->cmt);
+  if (debug) fprintf(stderr,"load_table_header() naxis:%ld comment:%s\n",img->naxis,img->cmt);
   if(fits_read_key(img->ifp, TLONG, (char*)"NAXIS1", &img->naxes[0],
        (char*)img->cmt, &img->status)) printerror(img->status);
-  fprintf(stderr,"load_table_header() naxes[0]:%ld comment:%s\n",img->naxes[0],img->cmt);
+  if (debug) fprintf(stderr,"load_table_header() naxes[0]:%ld comment:%s\n",img->naxes[0],img->cmt);
   if(fits_read_key(img->ifp, TLONG, (char*)"NAXIS2", &img->naxes[1],
        (char*)img->cmt, &img->status)) printerror(img->status);
-  fprintf(stderr,"load_table_header() naxes[1]:%ld comment:%s\n",img->naxes[1],img->cmt);
+  if (debug) fprintf(stderr,"load_table_header() naxes[1]:%ld comment:%s\n",img->naxes[1],img->cmt);
   if(fits_read_key(img->ifp, TINT, (char*)"TFIELDS", &img->btable.tfields,
        (char*)img->cmt, &img->status)) printerror(img->status);
-  fprintf(stderr,"load_table_header() tfields:%d comment:%s\n",img->btable.tfields,img->cmt);
-  fprintf(stderr,"load_table_header() read all metadata\n");
+  if (debug) fprintf(stderr,"load_table_header() tfields:%d comment:%s\n",img->btable.tfields,img->cmt);
+  if (debug) fprintf(stderr,"load_table_header() read all metadata\n");
   img->btable.ncols=img->naxes[0]; /* width of the table row in bytes */
   img->btable.nrows=img->naxes[1]; /* number of rows in the table*/
   img->nelements=img->naxes[1];
@@ -197,37 +200,37 @@ int load_table(struct image *img){
   img->btable.longnull  = 0;
   img->btable.floatnull = 0.;
 
-  fprintf(stderr,"load_table() going to allocate space for the column labels\n");
+  if (debug) fprintf(stderr,"load_table() going to allocate space for the column labels\n");
   for (ii = 0; ii < img->btable.tfields; ii++)      /* allocate space for the column labels */
         img->btable.ttype[ii] = (char *) malloc(FLEN_VALUE);  /* max label length = 69 */
 
-  fprintf(stderr,"load_table() going to allocate space for string column value\n");
+  if (debug) fprintf(stderr,"load_table() going to allocate space for string column value\n");
   for (ii = 0; ii < img->btable.nrows; ii++)    /* allocate space for string column value */
         img->btable.planet[ii] = (char *) malloc(10);   
 
-  fprintf(stderr,"load_table() going to read columns\n");
+  if (debug) fprintf(stderr,"load_table() going to read columns\n");
         /*  read the columns */  
   if(fits_read_col(img->ifp, TSTRING, 1, img->btable.firstrow, img->btable.firstelem, 
   img->nelements, img->btable.strnull, img->btable.planet,&img->anynull, &img->status)) printerror(img->status);
-  fprintf(stderr,"load_table() read first column\n");
+  if (debug) fprintf(stderr,"load_table() read first column\n");
   if(fits_read_col(img->ifp, TLONG, 2, img->btable.firstrow, img->btable.firstelem, 
   img->nelements, &img->btable.longnull, img->btable.diameter, &img->anynull, &img->status)) printerror(img->status);
-  fprintf(stderr,"load_table() read second column\n");
+  if (debug) fprintf(stderr,"load_table() read second column\n");
   if(fits_read_col(img->ifp, TFLOAT, 3, img->btable.firstrow, img->btable.firstelem, 
   img->nelements, &img->btable.floatnull, img->btable.density,&img->anynull, &img->status)) printerror(img->status);
-  fprintf(stderr,"load_table() read third column\n");
+  if (debug) fprintf(stderr,"load_table() read third column\n");
     img->btable.row = (struct trow *)malloc(img->btable.nrows*sizeof(struct trow));
 	for(j=0;j<img->btable.nrows;j++) {
 			strcpy(img->btable.row[j].str,img->btable.planet[j]);
 			img->btable.row[j].inum=img->btable.diameter[j];
 			img->btable.row[j].rnum=img->btable.density[j];
 	}
-  fprintf(stderr,"load_table() table loaded in memory structure\n");
+  if (debug) fprintf(stderr,"load_table() table loaded in memory structure\n");
   /* close fits file */
   if ( fits_close_file(img->ifp, &img->status) ) printerror( img->status );
-  fprintf(stderr,"load_table() input fits file closed\n");
+  if (debug) fprintf(stderr,"load_table() input fits file closed\n");
   print_table(img);
-  fprintf(stderr,"load_table() table printed\n");
+  if (debug) fprintf(stderr,"load_table() table printed\n");
   free(img->btable.row);
   return img->status;
 }
@@ -243,61 +246,61 @@ int load_fits(struct image *img){
 long int i,j;
   /* open fits file for reading */
   img->status=0;
-  fprintf(stderr,"load_fits() going to open file %s\n",img->ifname);
+  if (debug) fprintf(stderr,"load_fits() going to open file %s\n",img->ifname);
   if ( fits_open_file(&img->ifp, img->ifname, READONLY, &img->status) )
      printerror( img->status );
-  fprintf(stderr,"load_fits() input fits file opened\n");
+  if (debug) fprintf(stderr,"load_fits() input fits file opened\n");
   /* load image in memory */
   if(fits_read_key(img->ifp, TLONG, (char*)"NAXIS", &img->naxis,
        (char*)img->cmt, &img->status)) printerror(img->status);
-  fprintf(stderr,"naxis:%ld comment:%s\n",img->naxis,img->cmt);
+  if (debug) fprintf(stderr,"naxis:%ld comment:%s\n",img->naxis,img->cmt);
   if(fits_read_key(img->ifp, TLONG, (char*)"NAXIS1", &img->naxes[0],
        (char*)img->cmt, &img->status)) printerror(img->status);
-  fprintf(stderr,"naxes[0]:%ld comment:%s\n",img->naxes[0],img->cmt);
+  if (debug) fprintf(stderr,"naxes[0]:%ld comment:%s\n",img->naxes[0],img->cmt);
   if(fits_read_key(img->ifp, TLONG, (char*)"NAXIS2", &img->naxes[1],
        (char*)img->cmt, &img->status)) printerror(img->status);
-  fprintf(stderr,"naxes[1]:%ld comment:%s\n",img->naxes[1],img->cmt);
+  if (debug) fprintf(stderr,"naxes[1]:%ld comment:%s\n",img->naxes[1],img->cmt);
   if(fits_read_key(img->ifp, TLONG, (char*)"BITPIX", &img->bitpix,
        (char*)img->cmt, &img->status)) printerror(img->status);
-  fprintf(stderr,"bitpix:%d comment:%s\n",img->bitpix,img->cmt);
+  if (debug) fprintf(stderr,"bitpix:%d comment:%s\n",img->bitpix,img->cmt);
   img->ncols=img->naxes[0];
   img->nrows=img->naxes[1];
   img->nelements=img->naxes[0]*img->naxes[1];
   /* initialize the array*/
   img->status=0;
-  if(allocate_array(img->bitpix,img)) fprintf(stderr,"error in allocating array memory\n");
-  fprintf(stderr,"load_fits() array allocated\n");
+  if(allocate_array(img->bitpix,img)) if (debug) fprintf(stderr,"error in allocating array memory\n");
+  if (debug) fprintf(stderr,"load_fits() array allocated\n");
 
   if(img->bitpix==32){
-                  fprintf(stderr,"load_fits() reading a 32 bit per pixel image\n");
+                  if (debug) fprintf(stderr,"load_fits() reading a 32 bit per pixel image\n");
   if ( fits_read_img(img->ifp, TINT, img->fpixel, img->nelements, &img->nullval,
                   img->arr, &img->anynull, &img->status) ) printerror( img->status );
   } else if (img->bitpix==16){
-                  fprintf(stderr,"load_fits() reading a 16 bit per pixel image\n");
+                  if (debug) fprintf(stderr,"load_fits() reading a 16 bit per pixel image\n");
   if ( fits_read_img(img->ifp, TSHORT, img->fpixel, img->nelements, &img->nullval,
                   img->arr16, &img->anynull, &img->status) ) printerror( img->status );
   } else if (img->bitpix==8){
-                  fprintf(stderr,"load_fits() reading a 8 bit per pixel image\n");
+                  if (debug) fprintf(stderr,"load_fits() reading a 8 bit per pixel image\n");
   if ( fits_read_img(img->ifp, TBYTE, img->fpixel, img->nelements, &img->nullval,
                   img->arr8, &img->anynull, &img->status) ) printerror( img->status );
   }
-  fprintf(stderr,"load_fits() image loaded in memory\n");
+  if (debug) fprintf(stderr,"load_fits() image loaded in memory\n");
   /* close fits file */
   if ( fits_close_file(img->ifp, &img->status) ) printerror( img->status );
-  fprintf(stderr,"load_fits() input fits file closed\n");
+  if (debug) fprintf(stderr,"load_fits() input fits file closed\n");
 return img->status;
 }
 
 int set_chdu(int hdunum,struct image *img){
   img->chdu=hdunum;
-  fprintf(stderr,"set_chdu() current hdu set to %d\n",img->chdu);
-  fprintf(stderr,"set_chdu() going to open fits file %s\n",img->fname);
+  if (debug) fprintf(stderr,"set_chdu() current hdu set to %d\n",img->chdu);
+  if (debug) fprintf(stderr,"set_chdu() going to open fits file %s\n",img->fname);
 if (fits_open_file(&img->ofp, img->fname, READWRITE, &img->status) )
    printerror(img->status);
-  fprintf(stderr,"set_chdu() opened fits file %s\n",img->fname);
+  if (debug) fprintf(stderr,"set_chdu() opened fits file %s\n",img->fname);
 if ( fits_movabs_hdu(img->ofp, img->chdu, &img->btable.hdutype, &img->status) )
   printerror(img->status);
-  fprintf(stderr,"set_chdu() moved to hdu %d tyoe %d\n",img->chdu,img->btable.hdutype);
+  if (debug) fprintf(stderr,"set_chdu() moved to hdu %d tyoe %d\n",img->chdu,img->btable.hdutype);
   return img->status;
 }
 int add_table(struct image *img){
@@ -317,7 +320,7 @@ int add_table(struct image *img){
     img->btable.tunit[0] = "\0";
     img->btable.tunit[1] = "km";
     img->btable.tunit[2] = "g/cm^3";
-  fprintf(stderr,"add_table() defined columns metadata\n");
+  if (debug) fprintf(stderr,"add_table() defined columns metadata\n");
 
     /* define the name, diameter, and density of each planet */
     img->btable.planet[0] = "Mercury";
@@ -338,26 +341,26 @@ int add_table(struct image *img){
     img->btable.density[3]  = 3.94f;
     img->btable.density[4]  = 1.33f;
     img->btable.density[5]  = 0.69f;
-  fprintf(stderr,"add_table() defined columns content\n");
+  if (debug) fprintf(stderr,"add_table() defined columns content\n");
 if ( fits_create_tbl( img->ofp, BINARY_TBL,
 img->btable.nrows, img->btable.tfields,
 img->btable.ttype, img->btable.tform,
 img->btable.tunit, img->btable.extname, &img->status) )
          printerror( img->status );
-  fprintf(stderr,"add_table() created table\n");
+  if (debug) fprintf(stderr,"add_table() created table\n");
 
     if(fits_write_col(img->ofp, TSTRING, 1, img->btable.firstrow, img->btable.firstelem, img->btable.nrows, img->btable.planet,
                    &img->status)) printerror(img->status);
-    fprintf(stderr,"add_table() written column 1\n");
+    if (debug) fprintf(stderr,"add_table() written column 1\n");
     if(fits_write_col(img->ofp, TLONG, 2, img->btable.firstrow, img->btable.firstelem, img->btable.nrows, img->btable.diameter,
                    &img->status)) printerror(img->status);
-    fprintf(stderr,"add_table() written column 2\n");
+    if (debug) fprintf(stderr,"add_table() written column 2\n");
     if(fits_write_col(img->ofp, TFLOAT, 3, img->btable.firstrow, img->btable.firstelem, img->btable.nrows, img->btable.density,
                    &img->status)) printerror(img->status);
-    fprintf(stderr,"add_table() written column 3\n");
+    if (debug) fprintf(stderr,"add_table() written column 3\n");
     if ( fits_close_file(img->ofp, &img->status) )
          printerror( img->status );
-    fprintf(stderr,"add_table() closed fits file\n");
+    if (debug) fprintf(stderr,"add_table() closed fits file\n");
   return img->status;
 }
 
@@ -376,7 +379,7 @@ int add_table_struct(struct image *img, struct trow *row){
     img->btable.tunit[0] = "\0";
     img->btable.tunit[1] = "km";
     img->btable.tunit[2] = "g/cm^3";
-  fprintf(stderr,"add_table() defined columns metadata\n");
+  if (debug) fprintf(stderr,"add_table() defined columns metadata\n");
 
     /* define the name, diameter, and density of each planet */
     img->btable.planet[0] = row[0].str;
@@ -397,57 +400,57 @@ int add_table_struct(struct image *img, struct trow *row){
     img->btable.density[3]  = row[3].rnum;
     img->btable.density[4]  = row[4].rnum;
     img->btable.density[5]  = row[5].rnum;
-  fprintf(stderr,"add_table() defined columns content\n");
+  if (debug) fprintf(stderr,"add_table() defined columns content\n");
 if ( fits_create_tbl( img->ofp, BINARY_TBL,
 img->btable.nrows, img->btable.tfields,
 img->btable.ttype, img->btable.tform,
 img->btable.tunit, img->btable.extname, &img->status) )
          printerror( img->status );
-  fprintf(stderr,"add_table() created table\n");
+  if (debug) fprintf(stderr,"add_table() created table\n");
 
     if(fits_write_col(img->ofp, TSTRING, 1, img->btable.firstrow, img->btable.firstelem, img->btable.nrows, img->btable.planet,
                    &img->status)) printerror(img->status);
-    fprintf(stderr,"add_table() written column 1\n");
+    if (debug) fprintf(stderr,"add_table() written column 1\n");
     if(fits_write_col(img->ofp, TLONG, 2, img->btable.firstrow, img->btable.firstelem, img->btable.nrows, img->btable.diameter,
                    &img->status)) printerror(img->status);
-    fprintf(stderr,"add_table() written column 2\n");
+    if (debug) fprintf(stderr,"add_table() written column 2\n");
     if(fits_write_col(img->ofp, TFLOAT, 3, img->btable.firstrow, img->btable.firstelem, img->btable.nrows, img->btable.density,
                    &img->status)) printerror(img->status);
-    fprintf(stderr,"add_table() written column 3\n");
+    if (debug) fprintf(stderr,"add_table() written column 3\n");
     if ( fits_close_file(img->ofp, &img->status) )
          printerror( img->status );
-    fprintf(stderr,"add_table() closed fits file\n");
+    if (debug) fprintf(stderr,"add_table() closed fits file\n");
   return img->status;
 }
 
 void set_table_data(struct trow *row){
   /* */
-  fprintf(stderr,"set_data() going to set the strings\n");
+  if (debug) fprintf(stderr,"set_data() going to set the strings\n");
   strcpy(row[0].str,"Mercury");
   strcpy(row[1].str,"Venus");
   strcpy(row[2].str,"Earth");
   strcpy(row[3].str,"Mars");
   strcpy(row[4].str,"Jupiter");
   strcpy(row[5].str,"Saturn");
-  fprintf(stderr,"set_data() strings rowumn set\n");
+  if (debug) fprintf(stderr,"set_data() strings rowumn set\n");
   /* */
-  fprintf(stderr,"set_data() going to set the integers\n");
+  if (debug) fprintf(stderr,"set_data() going to set the integers\n");
   row[0].inum=4880;
   row[1].inum=12112;
   row[2].inum=12742;
   row[3].inum=6800;
   row[4].inum=143000;
   row[5].inum=121000;
-  fprintf(stderr,"set_data() integers rowumn set\n");
+  if (debug) fprintf(stderr,"set_data() integers rowumn set\n");
   /* */
-  fprintf(stderr,"set_data() going to set the reals\n");
+  if (debug) fprintf(stderr,"set_data() going to set the reals\n");
   row[0].rnum=5.1;
   row[1].rnum=5.3;
   row[2].rnum=5.52;
   row[3].rnum=3.94;
   row[4].rnum=1.33;
   row[5].rnum=0.69;
-  fprintf(stderr,"set_data() reals rowumn set\n");
+  if (debug) fprintf(stderr,"set_data() reals rowumn set\n");
 }
 
 void printerror( int status)
